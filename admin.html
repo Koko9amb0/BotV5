@@ -88,13 +88,12 @@ body {
 .table-card {
   background: var(--card);
   border-radius: var(--radius);
-  overflow-x: auto;
+  overflow: hidden;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
 table {
   width: 100%;
-  min-width: 340px;
   border-collapse: collapse;
   font-size: 14px;
 }
@@ -170,7 +169,6 @@ tr:hover td { background: #fafafa; }
 <body>
 
 <div class="header">
-  <button onclick="history.back()" style="background:none; border:none; color:#fff; font-size:22px; cursor:pointer; margin-right:10px;">←</button>
   📊 Панель аналитики
   <span>Система поддержки принятия решений</span>
 </div>
@@ -181,13 +179,6 @@ tr:hover td { background: #fafafa; }
 
 <script>
 const API = "https://botv5-glix.onrender.com/api";
-
-const entered = prompt("Введите пароль:");
-if (entered !== "3357") {
-  document.getElementById("app").innerHTML = 
-    `<div class="loading">🚫 Доступ запрещён</div>`;
-  throw new Error("Access denied");
-}
 
 async function load() {
   try {
@@ -283,10 +274,10 @@ function render(data) {
             <table>
               <thead>
                 <tr>
-                  <th>Категория</th>
-                  <th>Продано</th>
+                  <th>Кат.</th>
+                  <th>Прод.</th>
                   <th>Выручка</th>
-                  <th>Прибыль</th>
+                  <th>Приб.</th>
                 </tr>
               </thead>
               <tbody>
