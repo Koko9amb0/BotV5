@@ -351,20 +351,20 @@ async def api_order(req: OrderRequest):
     user = conn.execute("SELECT tg_id FROM users WHERE id = ?", (req.user_id,)).fetchone()
     if user:
         items_text = "\n".join([
-        f"• {conn.execute('SELECT name FROM products WHERE id = ?', (i.product_id,)).fetchone()['name']} x{i.qty}"
-        for i in req.items
-    ])
-    msg = (
-        f"✅ Заказ оформлен!\n\n"
-        f"{items_text}\n\n"
-        f"💰 Итого: {req.total} ₽\n"
-        f"📞 Мы свяжемся с вами для подтверждения."
-    )
-    async with httpx.AsyncClient() as client:
-        await client.post(
-            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-            json={"chat_id": user["tg_id"], "text": msg}
+            f"• {conn.execute('SELECT name FROM products WHERE id = ?', (i.product_id,)).fetchone()['name']} x{i.qty}"
+            for i in req.items
+        ])
+        msg = (
+            f"✅ Заказ оформлен!\n\n"
+            f"{items_text}\n\n"
+            f"💰 Итого: {req.total} ₽\n"
+            f"📞 Мы свяжемся с вами для подтверждения."
         )
+        async with httpx.AsyncClient() as client:
+            await client.post(
+                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                json={"chat_id": user["tg_id"], "text": msg}
+            )
     cur.execute(
         "SELECT id, total, date FROM orders WHERE user_id = ? ORDER BY id DESC",
         (req.user_id,),
