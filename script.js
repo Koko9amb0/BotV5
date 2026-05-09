@@ -352,13 +352,15 @@ async function loadUserData() {
 }
 
 // AUTH
+function dbg(msg) {
+  document.getElementById("debug").innerHTML += msg + "<br>";
+}
+
 async function auth() {
   const initData = tg.initData;
-  
-  if (!initData) {
-    console.warn("initData пустой — пропускаем авторизацию");
-    return;
-  }
+  dbg("initData: " + (initData ? initData.slice(0, 50) : "ПУСТОЙ"));
+
+  if (!initData) return;
 
   const res = await fetch(API + "/auth", {
     method: "POST",
@@ -367,6 +369,8 @@ async function auth() {
   });
 
   const data = await res.json();
+  dbg("response: " + JSON.stringify(data).slice(0, 100));
+
   USER_ID = data.user_id;
   USER = data.user;
 
