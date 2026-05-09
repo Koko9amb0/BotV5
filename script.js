@@ -354,6 +354,7 @@ async function loadUserData() {
 // AUTH
 async function auth() {
   const initData = tg.initData;
+  console.log("initData:", initData); // ← добавь
 
   const res = await fetch(API + "/auth", {
     method: "POST",
@@ -362,6 +363,7 @@ async function auth() {
   });
 
   const data = await res.json();
+  console.log("auth response:", data); // ← и это
 
   USER_ID = data.user_id;
   USER = data.user;
