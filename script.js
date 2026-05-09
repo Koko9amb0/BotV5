@@ -65,11 +65,19 @@ function renderProducts() {
               <span class="product-price">${p.price} ₽</span>
               ${p.old_price ? `<span class="product-old-price">${p.old_price} ₽</span>` : ""}
             </div>
-            <button class="add-btn ${inCart ? "added" : ""}" onclick="addToCart(${p.id})">+</button>
+            <button class="add-btn ${inCart ? "added" : ""}" onclick="${inCart ? `removeFromCart(${p.id})` : `openProduct(${p.id})`}">
+            ${inCart ? "✓" : "+"}
+            </button>
           </div>
         </div>
       </div>`;
   });
+}
+function removeFromCart(id) {
+  CART = CART.filter(i => i.product_id !== id);
+  saveCart();
+  renderProducts();
+  renderCart();
 }
 
 function openProduct(id) {
