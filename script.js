@@ -366,15 +366,20 @@ function dbg(msg) {
 }
 
 async function auth() {
-  const initData = tg.initData;
-  dbg("initData: " + (initData ? initData.slice(0, 50) : "ПУСТОЙ"));
+  // Пробуем initDataUnsafe напрямую
+  const unsafeUser = tg.initDataUnsafe?.user;
+  dbg("unsafeUser: " + JSON.stringify(unsafeUser));
 
-  if (!initData) return;
+  if (!unsafeUser) {
+    dbg("Нет данных пользователя");
+    return;
+  }
 
-  const res = await fetch(API + "/auth", {
+  // Без верификации — берём данные напрямую
+  const res = await fetch(API + "/auth_unsafe", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ initData })
+    body: JSON.stringify({ user: unsafeUser })
   });
 
   const data = await res.json();

@@ -152,6 +152,28 @@ app = FastAPI(title="MODO MiniApp Backend")
 app.mount("/pics", StaticFiles(directory="pics"), name="pics")
 app.mount("/static", StaticFiles(directory="."), name="static")
 
+class UnsafeAuthRequest(BaseModel):
+    user: dict
+
+@app.post("/api/auth_unsafe")
+def api_auth_unsafe(req: UnsafeAuthRequest):
+    tg_user = req.user
+    conn = db()
+    cur = conn.cursor()
+    cur.execute('''
+        INSERT INTO users (tg_id, username, first_name, last_name)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(tg_id) DO UPDATE SET
+            username=excluded.username,
+            first_name=excluded.first_name,
+            last_name=excluded.last_name
+    ''', (tg_user["id"], tg_user.get("username"), tg_user.get("first_name"), tg_user.get("last_name")))
+    conn.commit()
+    cur.execute("SELECT id FROM users WHERE tg_id = ?", (tg_user["id"],))
+    row = cur.fetchone()
+    conn.close()
+    return {"ok": True, "user_id": row["id"], "user": tg_user}
+
 @app.get("/admin")
 def admin():
     return FileResponse("admin.html")
