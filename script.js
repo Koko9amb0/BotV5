@@ -148,22 +148,23 @@ function toggleFavorite(id) {
 
 function renderFavorites() {
   const box = document.getElementById("favItems");
-  if (FAVORITES.length === 0) {
+  if (FAVORITES.length === 0 || PRODUCTS.length === 0) {
     box.innerHTML = `<div class="cart-empty">Нет избранных товаров</div>`;
     return;
   }
   box.innerHTML = FAVORITES.map(id => {
     const p = PRODUCTS.find(x => x.id === id);
+    if (!p) return "";
     return `<div class="cart-item" onclick="openProduct(${p.id})" style="cursor:pointer;">
-        <img src="${p.image_path || ''}" 
-          onerror="this.src=''"
-          style="width:60px; height:60px; object-fit:cover; border-radius:10px;">
-        <div class="cart-item-info">
-          <div class="cart-item-name">${p.name}</div>
-          <div class="cart-item-price">${p.price} ₽</div>
-        </div>
-        <button class="remove-btn" onclick="event.stopPropagation(); toggleFavorite(${id})">✖</button>
-      </div>`;
+      <img src="${p.image_path || ''}" 
+        onerror="this.src=''"
+        style="width:60px; height:60px; object-fit:cover; border-radius:10px; flex-shrink:0;">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${p.name}</div>
+        <div class="cart-item-price">${p.price} ₽</div>
+      </div>
+      <button class="remove-btn" onclick="event.stopPropagation(); toggleFavorite(${id})">✖</button>
+    </div>`;
   }).join("");
 }
 
