@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+import httpx
 
 # ================== НАСТРОЙКИ ==================
 
@@ -332,7 +333,7 @@ def api_cart(req: CartRequest):
 
 
 @app.post("/api/order")
-def api_order(req: OrderRequest):
+async def api_order(req: OrderRequest):
     conn = db()
     cur = conn.cursor()
     cur.execute(
@@ -346,7 +347,24 @@ def api_order(req: OrderRequest):
     )
     cur.execute("DELETE FROM cart WHERE user_id = ?", (req.user_id,))
     conn.commit()
-
+# Отправляем сообщение пользователю
+    user = conn.execute("SELECT tg_id FROM users WHERE id = ?", (req.user_id,)).fetchone()
+    if user:
+        items_text = "\n".join([
+        f"• {conn.execute('SELECT name FROM products WHERE id = ?', (i.product_id,)).fetchone()['name']} x{i.qty}"
+        for i in req.items
+    ])
+    msg = (
+        f"✅ Заказ №{order_id} оформлен!\n\n"
+        f"{items_text}\n\n"
+        f"💰 Итого: {req.total} ₽\n"
+        f"📞 Мы свяжемся с вами для подтверждения."
+    )
+    async with httpx.AsyncClient() as client:
+        await client.post(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+            json={"chat_id": user["tg_id"], "text": msg}
+        )
     cur.execute(
         "SELECT id, total, date FROM orders WHERE user_id = ? ORDER BY id DESC",
         (req.user_id,),
