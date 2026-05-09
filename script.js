@@ -1,5 +1,12 @@
 const tg = window.Telegram?.WebApp ?? { expand: () => {}, initData: "" };
 tg.expand();
+function dbg(msg) {
+  const el = document.getElementById("debug");
+  if (el) el.innerHTML += msg + "<br>";
+}
+dbg("platform: " + tg.platform);
+dbg("version: " + tg.version);
+dbg("initData length: " + tg.initData?.length);
 
 const API = "https://botv5-glix.onrender.com/api";
 
