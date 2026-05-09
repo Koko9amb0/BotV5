@@ -180,13 +180,8 @@ tr:hover td { background: #fafafa; }
 <script>
 const API = "https://botv5-glix.onrender.com/api";
 
-const ALLOWED = ["@Koko_9ambo"]; 
-
-const tg = window.Telegram?.WebApp ?? { initDataUnsafe: {}, expand: () => {} };
-tg.expand();
-
-const user = tg.initDataUnsafe?.user;
-if (!user || !ALLOWED.includes(user.username)) {
+const entered = prompt("Введите пароль:");
+if (entered !== "3357") {
   document.getElementById("app").innerHTML = 
     `<div class="loading">🚫 Доступ запрещён</div>`;
   throw new Error("Access denied");
