@@ -234,13 +234,14 @@ function closeProfile() {
 }
 
 function renderProfile() {
-// ADMIN ACCESS
-const ALLOWED = ["Koko_9ambo"];
+  const ALLOWED = ["Koko_9ambo"];
+  
+  console.log("USER:", USER); // ← добавь это
+  console.log("username:", USER?.username); // ← и это
 
-// после auth() когда USER уже заполнен
-if (USER && ALLOWED.includes(USER.username)) {
-  document.getElementById("adminBtn").style.display = "block";
-}
+  if (USER && ALLOWED.includes(USER.username)) {
+    document.getElementById("adminBtn").style.display = "block";
+  }
   const box = document.getElementById("profileContent");
   box.innerHTML = `
     <div style="display:flex; gap:12px; align-items:center;">
