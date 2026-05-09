@@ -247,7 +247,7 @@ function renderProfile() {
   console.log("username:", USER?.username); // ← и это
 
   if (USER && ALLOWED.includes(USER.username)) {
-    document.getElementById("adminBtn").style.display = "block";
+    document.getElementById("adminBtn").style.display = "flex";
   }
   const box = document.getElementById("profileContent");
   box.innerHTML = `
