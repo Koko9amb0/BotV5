@@ -81,6 +81,7 @@ def init_db():
     conn.commit()
     conn.close()
 
+
 def seed_products():
     """Заполняет таблицу товаров если она пустая"""
     conn = db()
@@ -149,6 +150,7 @@ def check_telegram_auth(init_data: str) -> dict:
 
 app = FastAPI(title="MODO MiniApp Backend")
 app.mount("/pics", StaticFiles(directory="pics"), name="pics")
+app.mount("/static", StaticFiles(directory="."), name="static")
 
 @app.get("/admin")
 def admin():
