@@ -125,15 +125,15 @@ def check_telegram_auth(init_data: str) -> dict:
     )
 
     secret_key = hmac.new(
-        key=b"WebAppData",
-        msg=BOT_TOKEN.encode(),
-        digestmod=hashlib.sha256
+        BOT_TOKEN.encode(),
+        b"WebAppData",
+        hashlib.sha256
     ).digest()
 
     calculated_hash = hmac.new(
-        key=secret_key,
-        msg=data_check_string.encode(),
-        digestmod=hashlib.sha256
+        secret_key,
+        data_check_string.encode(),
+        hashlib.sha256
     ).hexdigest()
 
     if calculated_hash != received_hash:
