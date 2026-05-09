@@ -453,6 +453,10 @@ body {
     <div class="nav-icon">👤</div>
     Профиль
   </div>
+  <div class="nav-item" id="adminBtn" style="display:none" onclick="openAdmin()">
+  <div class="nav-icon">📊</div>
+  Аналитика
+</div>
 </div>
 
 <!-- CART OVERLAY -->
@@ -723,7 +727,13 @@ function closeCart() {
   document.getElementById("cartOverlay").classList.remove("open");
   document.getElementById("cartDrawer").classList.remove("open");
 }
+// ADMIN ACCESS
+const ALLOWED = ["Koko_9ambo"];
 
+// после auth() когда USER уже заполнен
+if (USER && ALLOWED.includes(USER.username)) {
+  document.getElementById("adminBtn").style.display = "block";
+}
 // PROFILE
 function openProfile() {
   document.getElementById("profileOverlay").classList.add("open");
