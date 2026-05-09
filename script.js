@@ -352,6 +352,15 @@ async function loadUserData() {
 }
 
 // AUTH
+async function init() {
+  await new Promise(r => setTimeout(r, 500)); // ждём 500мс
+
+  const res = await fetch(API + "/products");
+  PRODUCTS = await res.json();
+  renderProducts();
+
+  auth().catch(err => console.warn("Auth failed:", err));
+}
 function dbg(msg) {
   document.getElementById("debug").innerHTML += msg + "<br>";
 }
