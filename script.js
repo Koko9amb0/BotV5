@@ -222,13 +222,6 @@ function closeCart() {
   document.getElementById("cartOverlay").classList.remove("open");
   document.getElementById("cartDrawer").classList.remove("open");
 }
-// ADMIN ACCESS
-const ALLOWED = ["Koko_9ambo"];
-
-// после auth() когда USER уже заполнен
-if (USER && ALLOWED.includes(USER.username)) {
-  document.getElementById("adminBtn").style.display = "block";
-}
 // PROFILE
 function openProfile() {
   document.getElementById("profileOverlay").classList.add("open");
@@ -241,6 +234,13 @@ function closeProfile() {
 }
 
 function renderProfile() {
+// ADMIN ACCESS
+const ALLOWED = ["Koko_9ambo"];
+
+// после auth() когда USER уже заполнен
+if (USER && ALLOWED.includes(USER.username)) {
+  document.getElementById("adminBtn").style.display = "block";
+}
   const box = document.getElementById("profileContent");
   box.innerHTML = `
     <div style="display:flex; gap:12px; align-items:center;">
