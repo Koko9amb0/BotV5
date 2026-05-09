@@ -559,7 +559,7 @@ function renderProducts() {
     const inCart = CART.find(i => i.product_id === p.id);
 
     list.innerHTML += `
-      <div class="product-card" data-name="${p.name}" data-cat="${p.cat}">
+      <div class="product-card" data-name="${p.name}" data-cat="${p.category}">
         <div style="position:relative;">
           <div class="product-img-placeholder">🛍️</div>
 
@@ -577,7 +577,7 @@ function renderProducts() {
           <div class="product-footer">
             <div>
               <span class="product-price">${p.price} ₽</span>
-              ${p.old ? `<span class="product-old-price">${p.old} ₽</span>` : ""}
+              ${p.old_price ? `<span class="product-old-price">${p.old_price} ₽</span>` : ""}
             </div>
 
             <button class="add-btn ${inCart ? "added" : ""}" onclick="addToCart(${p.id})">
