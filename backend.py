@@ -355,7 +355,7 @@ async def api_order(req: OrderRequest):
         for i in req.items
     ])
     msg = (
-        f"✅ Заказ №{order_id} оформлен!\n\n"
+        f"✅ Заказ оформлен!\n\n"
         f"{items_text}\n\n"
         f"💰 Итого: {req.total} ₽\n"
         f"📞 Мы свяжемся с вами для подтверждения."
