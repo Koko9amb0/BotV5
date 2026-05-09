@@ -50,10 +50,9 @@ function renderProducts() {
     list.innerHTML += `
       <div class="product-card" data-name="${p.name}" data-cat="${p.category}">
         <div style="position:relative;">
-          <img src="${p.image_path || ''}" 
+          <img src="${p.image_path || ''}"
             onerror="this.outerHTML='<div class=\'product-img-placeholder\'>🛍️</div>'"
-            onclick="openProduct(${p.id})"
-            style="width:100%; height:140px; object-fit:cover; border-radius:var(--radius); cursor:pointer;">
+            style="width:100%; height:140px; object-fit:cover; border-radius:var(--radius);">
           <button class="fav-btn" onclick="toggleFavorite(${p.id})">${isFav ? "❤️" : "🤍"}</button>
           ${p.badge ? `<div class="product-badge">${p.badge}</div>` : ""}
         </div>
@@ -139,7 +138,6 @@ function addToCartFromDrawer(id) {
   closeProduct();
   showToast("Добавлено в корзину!");
 }
-
 // ───────── FAVORITES ─────────
 function toggleFavorite(id) {
   FAVORITES = FAVORITES.includes(id) ? FAVORITES.filter(f => f !== id) : [...FAVORITES, id];
@@ -156,14 +154,16 @@ function renderFavorites() {
   }
   box.innerHTML = FAVORITES.map(id => {
     const p = PRODUCTS.find(x => x.id === id);
-    return `<div class="cart-item">
-      <div class="cart-item-img">🛍️</div>
-      <div class="cart-item-info">
-        <div class="cart-item-name">${p.name}</div>
-        <div class="cart-item-price">${p.price} ₽</div>
-      </div>
-      <button class="remove-btn" onclick="toggleFavorite(${id})">✖</button>
-    </div>`;
+    return `<div class="cart-item" onclick="openProduct(${p.id})" style="cursor:pointer;">
+        <img src="${p.image_path || ''}" 
+          onerror="this.src=''"
+          style="width:60px; height:60px; object-fit:cover; border-radius:10px;">
+        <div class="cart-item-info">
+          <div class="cart-item-name">${p.name}</div>
+          <div class="cart-item-price">${p.price} ₽</div>
+        </div>
+        <button class="remove-btn" onclick="event.stopPropagation(); toggleFavorite(${id})">✖</button>
+      </div>`;
   }).join("");
 }
 
@@ -216,8 +216,11 @@ function renderCart() {
     const p = PRODUCTS.find(x => x.id === i.product_id);
     total += p.price * i.qty;
     return `<div class="cart-item">
-      <div class="cart-item-img">🛍️</div>
-      <div class="cart-item-info">
+    <img src="${p.image_path || ''}"
+      onerror="this.src=''"
+      onclick="openProduct(${p.id})"  
+      style="width:60px; height:60px; object-fit:cover; border-radius:10px; cursor:pointer;">
+    <div class="cart-item-info">
         <div class="cart-item-name">${p.name}</div>
         <div class="cart-item-price">${p.price} ₽</div>
         <div class="cart-item-qty">
