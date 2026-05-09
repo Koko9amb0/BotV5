@@ -52,7 +52,8 @@ function renderProducts() {
         <div style="position:relative;">
           <img src="${p.image_path || ''}"
             onerror="this.outerHTML='<div class=\'product-img-placeholder\'>🛍️</div>'"
-            style="width:100%; height:140px; object-fit:cover; border-radius:var(--radius);">
+            onclick="openProduct(${p.id})"
+            style="width:100%; height:140px; object-fit:cover; border-radius:var(--radius); cursor:pointer;">
           <button class="fav-btn" onclick="toggleFavorite(${p.id})">${isFav ? "❤️" : "🤍"}</button>
           ${p.badge ? `<div class="product-badge">${p.badge}</div>` : ""}
         </div>
