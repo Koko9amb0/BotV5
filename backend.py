@@ -9,6 +9,8 @@ import sqlite3
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 # ================== НАСТРОЙКИ ==================
 
@@ -146,6 +148,10 @@ def check_telegram_auth(init_data: str) -> dict:
 # ================== FASTAPI ==================
 
 app = FastAPI(title="MODO MiniApp Backend")
+
+@app.get("/")
+def root():
+    return FileResponse("index.html")
 
 app.add_middleware(
     CORSMiddleware,
