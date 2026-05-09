@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>MODO — Аналитика</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --bg: #f4f4f8;
+  --card: #ffffff;
+  --text: #111;
+  --muted: #777;
+  --accent: #8774e1;
+  --green: #2ecc71;
+  --red: #e74c3c;
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding-bottom: 40px;
+}
+
+.header {
+  background: var(--accent);
+  color: #fff;
+  padding: 18px 16px 14px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.header span {
+  font-size: 14px;
+  font-weight: 400;
+  opacity: 0.8;
+  display: block;
+  margin-top: 2px;
+}
+
+.section {
+  padding: 16px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* CARDS */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.card-label {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.card-value {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.card-value.green { color: var(--green); }
+.card-value.red { color: var(--red); }
+.card-value.accent { color: var(--accent); }
+
+/* TABLE */
+.table-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th {
+  background: #f9f9f9;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+td {
+  padding: 12px 14px;
+  border-top: 1px solid #f0f0f0;
+}
+
+tr:hover td { background: #fafafa; }
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  background: #f0edfd;
+  color: var(--accent);
+}
+
+/* RECOMMENDATIONS */
+.rec-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rec-item {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-size: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  border-left: 4px solid var(--accent);
+  line-height: 1.5;
+}
+
+/* CHART */
+.chart-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+/* LOADING */
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.empty {
+  text-align: center;
+  padding: 30px;
+  color: var(--muted);
+  font-size: 14px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  📊 Панель аналитики
+  <span>Система поддержки принятия решений</span>
+</div>
+
+<div id="app">
+  <div class="loading">Загружаем данные...</div>
+</div>
+
+<script>
+const API = "https://botv5-glix.onrender.com/api";
+
+const ALLOWED = ["@Koko_9ambo"]; 
+
+const tg = window.Telegram?.WebApp ?? { initDataUnsafe: {}, expand: () => {} };
+tg.expand();
+
+const user = tg.initDataUnsafe?.user;
+if (!user || !ALLOWED.includes(user.username)) {
+  document.getElementById("app").innerHTML = 
+    `<div class="loading">🚫 Доступ запрещён</div>`;
+  throw new Error("Access denied");
+}
+
+async function load() {
+  try {
+    const res = await fetch(API + "/analytics");
+    const data = await res.json();
+    render(data);
+  } catch (e) {
+    document.getElementById("app").innerHTML =
+      `<div class="loading">Ошибка загрузки данных 😢<br><small>${e.message}</small></div>`;
+  }
+}
+
+function fmt(n) {
+  if (!n) return "0 ₽";
+  return Math.round(n).toLocaleString("ru-RU") + " ₽";
+}
+
+function render(data) {
+  const f = data.finance;
+  const top = data.top_products;
+  const cats = data.category_stats;
+  const recs = data.recommendations;
+
+  document.getElementById("app").innerHTML = `
+
+    <!-- ФИНАНСОВАЯ СВОДКА -->
+    <div class="section">
+      <div class="section-title">Финансовая сводка</div>
+      <div class="cards">
+        <div class="card">
+          <div class="card-label">Выручка</div>
+          <div class="card-value accent">${fmt(f.revenue)}</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Прибыль</div>
+          <div class="card-value green">${fmt(f.profit)}</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Себестоимость</div>
+          <div class="card-value red">${fmt(f.cost)}</div>
+        </div>
+        <div class="card">
+          <div class="card-label">Заказов</div>
+          <div class="card-value">${f.order_count || 0}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ГРАФИК ПО КАТЕГОРИЯМ -->
+    <div class="section">
+      <div class="section-title">Прибыль по категориям</div>
+      <div class="chart-card">
+        <canvas id="catChart" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- ТОП ТОВАРОВ -->
+    <div class="section">
+      <div class="section-title">Топ товаров по продажам</div>
+      ${top.length === 0
+        ? `<div class="table-card"><div class="empty">Заказов пока нет</div></div>`
+        : `<div class="table-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Товар</th>
+                  <th>Категория</th>
+                  <th>Продано</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${top.map((t, i) => `
+                  <tr>
+                    <td><b>${i + 1}</b></td>
+                    <td>${t.name}</td>
+                    <td><span class="badge">${t.category}</span></td>
+                    <td><b>${t.total_sold} шт.</b></td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>`
+      }
+    </div>
+
+    <!-- СТАТИСТИКА ПО КАТЕГОРИЯМ -->
+    <div class="section">
+      <div class="section-title">Статистика по категориям</div>
+      ${cats.length === 0
+        ? `<div class="table-card"><div class="empty">Нет данных</div></div>`
+        : `<div class="table-card">
+            <table>
+              <thead>
+                <tr>
+                  <th>Категория</th>
+                  <th>Продано</th>
+                  <th>Выручка</th>
+                  <th>Прибыль</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${cats.map(c => `
+                  <tr>
+                    <td><span class="badge">${c.category}</span></td>
+                    <td>${c.total_sold} шт.</td>
+                    <td>${fmt(c.revenue)}</td>
+                    <td class="${c.profit > 0 ? 'green' : 'red'}" style="font-weight:700;">
+                      ${fmt(c.profit)}
+                    </td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>`
+      }
+    </div>
+
+    <!-- РЕКОМЕНДАЦИИ -->
+    <div class="section">
+      <div class="section-title">Рекомендации системы</div>
+      ${recs.length === 0
+        ? `<div class="rec-list"><div class="rec-item">Недостаточно данных для рекомендаций — оформите первые заказы.</div></div>`
+        : `<div class="rec-list">
+            ${recs.map(r => `<div class="rec-item">${r}</div>`).join("")}
+          </div>`
+      }
+    </div>
+  `;
+
+  // График
+  if (cats.length > 0) {
+    const ctx = document.getElementById("catChart").getContext("2d");
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: cats.map(c => c.category),
+        datasets: [
+          {
+            label: "Выручка",
+            data: cats.map(c => c.revenue || 0),
+            backgroundColor: "#c5baf5",
+            borderRadius: 6,
+          },
+          {
+            label: "Прибыль",
+            data: cats.map(c => c.profit || 0),
+            backgroundColor: "#8774e1",
+            borderRadius: 6,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: "bottom" } },
+        scales: {
+          y: {
+            ticks: {
+              callback: v => v.toLocaleString("ru-RU") + " ₽"
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+load();
+</script>
+</body>
+</html>

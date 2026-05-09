@@ -150,6 +150,10 @@ def check_telegram_auth(init_data: str) -> dict:
 app = FastAPI(title="MODO MiniApp Backend")
 app.mount("/pics", StaticFiles(directory="pics"), name="pics")
 
+@app.get("/admin")
+def admin():
+    return FileResponse("admin.html")
+
 @app.get("/")
 def root():
     return FileResponse("index.html")
