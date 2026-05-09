@@ -354,7 +354,11 @@ async function loadUserData() {
 // AUTH
 async function auth() {
   const initData = tg.initData;
-  console.log("initData:", initData); // ← добавь
+  
+  if (!initData) {
+    console.warn("initData пустой — пропускаем авторизацию");
+    return;
+  }
 
   const res = await fetch(API + "/auth", {
     method: "POST",
@@ -363,14 +367,13 @@ async function auth() {
   });
 
   const data = await res.json();
-  console.log("auth response:", data); // ← и это
-
   USER_ID = data.user_id;
   USER = data.user;
 
   renderProfile();
   await loadUserData();
 }
+
 let PRODUCTS = [];
 
 async function init() {
