@@ -50,9 +50,10 @@ function renderProducts() {
     list.innerHTML += `
       <div class="product-card" data-name="${p.name}" data-cat="${p.category}">
         <div style="position:relative;">
-          <img src="${p.image_path || ''}"
+          <img src="${p.image_path || ''}" 
             onerror="this.outerHTML='<div class=\'product-img-placeholder\'>🛍️</div>'"
-            style="width:100%; height:140px; object-fit:cover; border-radius:var(--radius);">
+            onclick="openProduct(${p.id})"
+            style="width:100%; height:140px; object-fit:cover; border-radius:var(--radius); cursor:pointer;">
           <button class="fav-btn" onclick="toggleFavorite(${p.id})">${isFav ? "❤️" : "🤍"}</button>
           ${p.badge ? `<div class="product-badge">${p.badge}</div>` : ""}
         </div>
@@ -69,6 +70,74 @@ function renderProducts() {
         </div>
       </div>`;
   });
+}
+
+function openProduct(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  const sizes = ["S", "M", "L", "XL"];
+  const hasSizes = p.category !== "accessories";
+
+  document.getElementById("productContent").innerHTML = `
+    <img src="${p.image_path || ''}" 
+      onerror="this.style.display='none'"
+      style="width:100%; height:220px; object-fit:cover; border-radius:var(--radius); margin-bottom:16px;">
+    <div style="font-size:20px; font-weight:700;">${p.name}</div>
+    <div style="font-size:14px; color:#777; margin-top:4px;">${p.sub}</div>
+    <div style="font-size:22px; font-weight:700; margin-top:12px;">${p.price} ₽
+      ${p.old_price ? `<span style="font-size:15px; color:#999; text-decoration:line-through; margin-left:8px;">${p.old_price} ₽</span>` : ""}
+    </div>
+    <div style="margin-top:16px; font-size:14px; color:#444; line-height:1.6;">${p.description || ""}</div>
+    ${hasSizes ? `
+      <div style="margin-top:20px; font-weight:600; margin-bottom:10px;">Размер:</div>
+      <div style="display:flex; gap:10px;">
+        ${sizes.map(s => `
+          <button onclick="selectSize(this, '${s}')" 
+            style="width:48px; height:48px; border-radius:10px; border:2px solid #ddd; background:#fff; font-size:15px; font-weight:600; cursor:pointer;">
+            ${s}
+          </button>`).join("")}
+      </div>` : ""}
+    <button onclick="addToCartFromDrawer(${id})" 
+      style="width:100%; margin-top:24px; padding:14px; background:#111; color:#fff; border:none; border-radius:var(--radius); font-size:16px; font-weight:600; cursor:pointer;">
+      🛒 Добавить в корзину
+    </button>
+  `;
+
+  document.getElementById("productOverlay").classList.add("open");
+  document.getElementById("productDrawer").classList.add("open");
+}
+
+function closeProduct() {
+  document.getElementById("productOverlay").classList.remove("open");
+  document.getElementById("productDrawer").classList.remove("open");
+}
+
+let selectedSize = null;
+
+function selectSize(btn, size) {
+  document.querySelectorAll("#productContent button[onclick^='selectSize']").forEach(b => {
+    b.style.background = "#fff";
+    b.style.borderColor = "#ddd";
+    b.style.color = "#111";
+  });
+  btn.style.background = "#111";
+  btn.style.borderColor = "#111";
+  btn.style.color = "#fff";
+  selectedSize = size;
+}
+
+function addToCartFromDrawer(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  const hasSizes = p.category !== "accessories";
+
+  if (hasSizes && !selectedSize) {
+    showToast("Выберите размер!");
+    return;
+  }
+
+  addToCart(id);
+  selectedSize = null;
+  closeProduct();
+  showToast("Добавлено в корзину!");
 }
 
 // ───────── FAVORITES ─────────
